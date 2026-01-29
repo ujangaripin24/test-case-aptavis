@@ -38,6 +38,7 @@
         "vite": "^7.0.7"
     },
     "dependencies": {
+        "flowbite": "^4.0.1",
         "flowbite-react": "^0.12.16"
     }
 }
