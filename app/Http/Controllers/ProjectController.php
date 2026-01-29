@@ -27,4 +27,17 @@ class ProjectController extends Controller
         Projects::create($request->all());
         return redirect()->back();
     }
+
+    public function update(Request $request, Projects $project)
+    {
+        if (in_array($request->status, ['In Progress', 'Done'])) {
+            $unfinishedDep = $project->dependencies()->where('status', '!=', 'Done')->exists();
+            if ($unfinishedDep) {
+                return back()->withErrors(['status' => 'Project ini punya dependensi yang belum Done!']);
+            }
+        }
+
+        $project->update($request->all());
+        return redirect()->back();
+    }
 }

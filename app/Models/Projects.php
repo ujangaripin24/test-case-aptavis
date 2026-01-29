@@ -30,4 +30,19 @@ class Projects extends Model
         $doneWeight = $this->tasks()->where('status', 'Done')->sum('weight');
         return round(($doneWeight / $totalWeight) * 100, 2);
     }
+
+    public function updateStatusBasedOnTasks()
+    {
+        $tasks = $this->tasks;
+
+        if ($tasks->isEmpty() || $tasks->every('status', 'Draft')) {
+            $this->status = 'Draft';
+        } elseif ($tasks->every('status', 'Done')) {
+            $this->status = 'Done';
+        } else {
+            $this->status = 'In Progress';
+        }
+
+        $this->save();
+    }
 }
