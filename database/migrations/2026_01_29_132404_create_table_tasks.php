@@ -11,8 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('table_tasks', function (Blueprint $table) {
+        Schema::create('tasks', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('project_id')->constrained()->onDelete('cascade');
+            $table->foreignId('parent_id')->nullable()->constrained('tasks')->onDelete('cascade');
+            $table->string('name');
+            $table->enum('status', ['Draft', 'In Progress', 'Done'])->default('Draft');
+            $table->integer('weight');
             $table->timestamps();
         });
     }
@@ -22,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('table_tasks');
+        Schema::dropIfExists('tasks');
     }
 };

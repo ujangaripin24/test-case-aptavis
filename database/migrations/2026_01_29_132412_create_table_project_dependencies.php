@@ -11,9 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('table_project_dependencies', function (Blueprint $table) {
+        Schema::create('project_dependencies', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
+            $table->foreignId('project_id')->constrained('projects')->onDelete('cascade');
+            $table->foreignId('depends_on_id')->constrained('projects')->onDelete('cascade');
         });
     }
 
@@ -22,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('table_project_dependencies');
+        Schema::dropIfExists('project_dependencies');
     }
 };
