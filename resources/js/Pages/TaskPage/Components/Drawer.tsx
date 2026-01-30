@@ -197,6 +197,21 @@ const TaskDrawer: React.FC<TaskDrawerProps> = ({ isOpen, onClose, type, mode, se
                 {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
               </div>
 
+
+              <div>
+                <Label htmlFor="project_status">Status</Label>
+                <Select id="project_status" value={data.status} onChange={e => setData('status', e.target.value)}>
+                  <option value="Draft">Draft</option>
+                  <option value="In Progress">In Progress</option>
+                  <option value="Done">Done</option>
+                </Select>
+              </div>
+                {errors.status && (
+                  <p className="mt-1 text-sm text-red-600 font-medium">
+                    {errors.status}
+                  </p>
+                )}
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label>Tanggal Mulai</Label>
@@ -218,6 +233,31 @@ const TaskDrawer: React.FC<TaskDrawerProps> = ({ isOpen, onClose, type, mode, se
                 </div>
               </div>
 
+              <div className="mt-4">
+                <Label className="mb-2 block">Proyek Prasyarat (Dependency):</Label>
+                <div className="grid grid-cols-1 gap-2 max-h-40 overflow-y-auto border p-3 rounded-lg bg-gray-50">
+                  {projects
+                    .filter((p: any) => p.id !== data.id)
+                    .map((p: any) => (
+                      <label key={p.id} className="flex items-center gap-2 text-sm cursor-pointer hover:text-blue-600">
+                        <input
+                          type="checkbox"
+                          className="rounded border-gray-300"
+                          checked={data.dependencies.includes(p.id)}
+                          onChange={(e) => {
+                            const selected = e.target.checked
+                              ? [...data.dependencies, p.id]
+                              : data.dependencies.filter(id => id !== p.id);
+                            setData('dependencies', selected);
+                          }}
+                        />
+                        {p.name} <span className="text-[10px] text-gray-400">({p.status})</span>
+                      </label>
+                    ))}
+                </div>
+                {errors.dependencies && <p className="text-red-500 text-xs mt-1">{errors.dependencies}</p>}
+              </div>
+
               {(errors as any).schedule && (
                 <p className="text-red-500 text-sm italic font-medium">
                   {(errors as any).schedule}
@@ -233,7 +273,6 @@ const TaskDrawer: React.FC<TaskDrawerProps> = ({ isOpen, onClose, type, mode, se
                   ></div>
                 </div>
               )}
-
               <div className="flex justify-between mt-8 border-t pt-5">
                 {mode === "Edit" && (
                   <Button color="red" onClick={() => handleDelete('project')} disabled={processing}>Hapus</Button>
