@@ -1,6 +1,7 @@
 # Test Case PT. Digital Apta Media
 
 ## Stack/Teknologi yang digunakan
+* Laravel 12 & React 19
 * PHP versi 8.2
 * Node versi 20.19.4 (LTS)
 * TypeScript
