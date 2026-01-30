@@ -13,7 +13,7 @@ class Tasks extends Model
 
     public function project(): BelongsTo
     {
-        return $this->belongsTo(Projects::class);
+        return $this->belongsTo(Projects::class, 'project_id');
     }
 
     public function subtasks(): HasMany

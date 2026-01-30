@@ -2,19 +2,20 @@ import { Button, Label, List, ListItem } from 'flowbite-react';
 import React, { useState } from 'react';
 import TaskDrawer from './Components/Drawer';
 
-const TaskPage: React.FC = () => {
+const TaskPage: React.FC<{ projects: any[] }> = ({ projects }) => {
   const [modalConfig, setModalConfig] = useState<{
     isOpen: boolean;
     type: "FormTasks" | "FormProjects";
     mode: "Tambah" | "Edit";
+    data?: any;
   }>({
     isOpen: false,
     type: "FormProjects",
     mode: "Tambah",
   });
 
-  const openDrawer = (type: "FormTasks" | "FormProjects", mode: "Tambah" | "Edit" = "Tambah") => {
-    setModalConfig({ isOpen: true, type, mode });
+  const openDrawer = (type: "FormTasks" | "FormProjects", mode: "Tambah" | "Edit", data?: any) => {
+    setModalConfig({ isOpen: true, type, mode, data });
   };
 
   const closeDrawer = () => {
@@ -23,36 +24,49 @@ const TaskPage: React.FC = () => {
 
   return (
     <>
-      <div className="container mx-auto px-2 mt-4">
-        <div className="flex flex-col gap-4 mb-4 items-start">
-          <Button color="green" onClick={() => openDrawer("FormProjects", "Tambah")}>
-            Add Project
-          </Button>
-        </div>
-        <div>
-          <div>
-            <div>
-              <div className={"cursor-pointer text-blue-800"} onClick={() => openDrawer("FormProjects", "Edit")}>Edit Project 1</div>
-              <div>
-                <Button onClick={() => openDrawer("FormTasks", "Tambah")} size='sm' color="green">Tambah Task</Button>
+      <div className="container mx-auto px-4 mt-8">
+        <Button color="blue" onClick={() => openDrawer("FormProjects", "Tambah")}>Add Project</Button>
+
+        <div className="mt-8 space-y-6">
+          {projects.map((project) => (
+            <div key={project.id} className="p-4 border rounded-lg shadow-sm bg-white">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h3
+                    className="text-lg font-bold text-blue-700 cursor-pointer hover:underline"
+                    onClick={() => openDrawer("FormProjects", "Edit", project)}
+                  >
+                    {project.name}
+                    <span className="ml-2 text-sm font-normal text-gray-500">({project.status})</span>
+                  </h3>
+                  <p className="text-sm text-gray-500 italic">
+                    Jadwal: {project.start_date} s/d {project.end_date}
+                  </p>
+                  <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+                    <div
+                      className="bg-blue-600 h-2.5 rounded-full"
+                      style={{ width: `${project.completion_progress}%` }}
+                    ></div>
+                  </div>
+                  <p className="text-xs mt-1">Progress: {project.completion_progress}%</p>
+                </div>
+
+                <Button size="xs" color="gray" onClick={() => openDrawer("FormTasks", "Tambah", { project_id: project.id })}>
+                  + Add Task
+                </Button>
               </div>
             </div>
-            <div>
-              <List>
-                <ListItem onClick={() => openDrawer("FormTasks", "Edit")}>At least 10 characters (and up to 100 characters)</ListItem>
-                <ListItem>At least one lowercase character</ListItem>
-                <ListItem>Inclusion of at least one special character, e.g., ! @ # ?</ListItem>
-              </List>
-            </div>
-          </div>
+          ))}
         </div>
+
+        <TaskDrawer
+          isOpen={modalConfig.isOpen}
+          onClose={() => setModalConfig({ ...modalConfig, isOpen: false })}
+          type={modalConfig.type}
+          mode={modalConfig.mode}
+          selectedData={modalConfig.data}
+        />
       </div>
-      <TaskDrawer
-        isOpen={modalConfig.isOpen}
-        onClose={closeDrawer}
-        type={modalConfig.type}
-        mode={modalConfig.mode}
-      />
     </>
   );
 };
