@@ -28,13 +28,17 @@ class Tasks extends Model
 
     public function isCircular($targetId, $visited = []): bool
     {
-        if (in_array($this->id, $visited)) return false;
         if ($this->id == $targetId) return true;
 
+        if (in_array($this->id, $visited)) return false;
         $visited[] = $this->id;
+
+        $this->loadMissing('dependencies');
+
         foreach ($this->dependencies as $dep) {
             if ($dep->isCircular($targetId, $visited)) return true;
         }
+
         return false;
     }
 }

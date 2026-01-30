@@ -27,14 +27,27 @@ class TaskController extends Controller
     {
         $task = Tasks::findOrFail($id);
 
-        $request->validate([
-            'name'   => 'required|string',
-            'status' => 'required|in:Draft,In Progress,Done',
-            'weight' => 'required|integer|min:1',
-        ]);
+        if ($request->status === 'Done') {
+            $unfinished = $task->dependencies()->where('status', '!=', 'Done')->exists();
+            if ($unfinished) {
+                return back()->withErrors(['status' => "Task ini punya prasyarat yang belum selesai!"]);
+            }
+        }
+
+        if ($request->has('dependencies')) {
+            foreach ($request->dependencies as $depId) {
+                $dependencyTask = Tasks::find($depId);
+
+                if ($dependencyTask instanceof \App\Models\Tasks) {
+                    if ($dependencyTask->isCircular($task->id)) {
+                        return back()->withErrors(['dependencies' => "Opps! Terjadi Circular Dependency."]);
+                    }
+                }
+            }
+            $task->dependencies()->sync($request->dependencies);
+        }
 
         $task->update($request->all());
-
         $task->project->updateStatusBasedOnTasks();
 
         return redirect()->back();
