@@ -20,6 +20,7 @@ const TaskDrawer: React.FC<TaskDrawerProps> = ({ isOpen, onClose, type, mode, se
     project_id: '',
     status: 'Draft',
     weight: 0,
+    dependencies: [] as number[],
   });
 
   useEffect(() => {
@@ -27,11 +28,10 @@ const TaskDrawer: React.FC<TaskDrawerProps> = ({ isOpen, onClose, type, mode, se
       setData({
         id: selectedData.id,
         name: selectedData.name,
-        start_date: selectedData.start_date || '',
-        end_date: selectedData.end_date || '',
         project_id: selectedData.project_id || '',
         status: selectedData.status || 'Draft',
         weight: selectedData.weight || 0,
+        dependencies: selectedData.dependencies ? selectedData.dependencies.map((d: any) => d.id) : [],
       });
     } else {
       reset();
@@ -127,6 +127,40 @@ const TaskDrawer: React.FC<TaskDrawerProps> = ({ isOpen, onClose, type, mode, se
                 onChange={e => setData('weight', parseInt(e.target.value) || 0)}
                 placeholder="Masukkan angka (e.g. 1, 2, 5)"
               />
+
+              <div className="mt-4">
+                <Label className="mb-2 block">Task ini bergantung pada (Prasyarat):</Label>
+                <div className="grid grid-cols-1 gap-2 max-h-48 overflow-y-auto border p-3 rounded-lg bg-gray-50 border-gray-200">
+                  {projects.find((p: any) => p.id == data.project_id)?.tasks
+                    ?.filter((t: any) => t.id !== data.id)
+                    .map((t: any) => (
+                      <label key={t.id} className="flex items-center gap-3 p-2 hover:bg-white rounded cursor-pointer transition-colors border border-transparent hover:border-gray-200">
+                        <input
+                          type="checkbox"
+                          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                          checked={data.dependencies.includes(t.id)}
+                          onChange={(e) => {
+                            const selected = e.target.checked
+                              ? [...data.dependencies, t.id]
+                              : data.dependencies.filter(id => id !== t.id);
+                            setData('dependencies', selected);
+                          }}
+                        />
+                        <div className="flex flex-col">
+                          <span className="text-sm font-medium text-gray-700">{t.name}</span>
+                          <span className={`text-[10px] uppercase font-bold ${t.status === 'Done' ? 'text-green-500' : 'text-gray-400'}`}>
+                            Status: {t.status}
+                          </span>
+                        </div>
+                      </label>
+                    ))}
+                  {(!projects.find((p: any) => p.id == data.project_id)?.tasks ||
+                    projects.find((p: any) => p.id == data.project_id)?.tasks.length <= 1) && (
+                      <p className="text-xs text-gray-400 italic">Tidak ada task lain untuk dijadikan prasyarat.</p>
+                    )}
+                </div>
+                {errors.dependencies && <p className="text-red-500 text-xs mt-1">{errors.dependencies}</p>}
+              </div>
 
               <div className="flex justify-between mt-8 border-t pt-4">
                 {mode === "Edit" && (

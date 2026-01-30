@@ -14,12 +14,16 @@ class TaskController extends Controller
             'name'       => 'required|string|max:255',
             'status'     => 'required|in:Draft,In Progress,Done',
             'weight'     => 'required|integer|min:1',
+            'dependencies' => 'nullable|array'
         ]);
 
         $task = Tasks::create($request->all());
 
-        $task->project->updateStatusBasedOnTasks();
+        if ($request->has('dependencies')) {
+            $task->dependencies()->sync($request->dependencies);
+        }
 
+        $task->project->updateStatusBasedOnTasks();
         return redirect()->back();
     }
 
