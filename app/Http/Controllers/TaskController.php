@@ -29,9 +29,9 @@ class TaskController extends Controller
 
     public function update(Request $request, $id)
     {
-        $task = Tasks::findOr($id);
+        $task = Tasks::findOrFail($id);
 
-        if ($request->status === 'done') {
+        if ($request->status === 'Done') {
             $unfinished = $task->dependencies()->where('status', '!=', 'Done')->exists();
 
             if ($unfinished) {
