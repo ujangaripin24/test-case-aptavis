@@ -17,6 +17,9 @@ const TaskDrawer: React.FC<TaskDrawerProps> = ({ isOpen, onClose, type, mode, se
     name: '',
     start_date: '',
     end_date: '',
+    project_id: '',
+    status: 'Draft',
+    weight: 0,
   });
 
   useEffect(() => {
@@ -26,9 +29,15 @@ const TaskDrawer: React.FC<TaskDrawerProps> = ({ isOpen, onClose, type, mode, se
         name: selectedData.name,
         start_date: selectedData.start_date || '',
         end_date: selectedData.end_date || '',
+        project_id: selectedData.project_id || '',
+        status: selectedData.status || 'Draft',
+        weight: selectedData.weight || 0,
       });
     } else {
       reset();
+      if (type === "FormTasks" && selectedData?.project_id) {
+        setData('project_id', selectedData.project_id);
+      }
     }
     clearErrors();
   }, [selectedData, mode, isOpen]);
@@ -42,6 +51,19 @@ const TaskDrawer: React.FC<TaskDrawerProps> = ({ isOpen, onClose, type, mode, se
         });
       } else {
         put(`/projects/${data.id}`, {
+          onSuccess: () => onClose()
+        });
+      }
+    } else if (type === "FormTasks") {
+      if (mode === "Tambah") {
+        post('/tasks', {
+          onSuccess: () => {
+            onClose();
+            reset();
+          }
+        });
+      } else {
+        put(`/tasks/${data.id}`, {
           onSuccess: () => onClose()
         });
       }
@@ -69,6 +91,8 @@ const TaskDrawer: React.FC<TaskDrawerProps> = ({ isOpen, onClose, type, mode, se
                   id="project_id"
                   value={data.project_id}
                   onChange={e => setData('project_id', e.target.value)}
+                  disabled
+                  color={errors.name ? 'failure' : 'gray'}
                 >
                   <option value="">Pilih Project</option>
                   {projects.map((p: any) => (
@@ -96,17 +120,13 @@ const TaskDrawer: React.FC<TaskDrawerProps> = ({ isOpen, onClose, type, mode, se
                 </Select>
               </div>
 
-              <div>
-                <Label htmlFor="weight">Bobot (Weight)</Label>
-                <TextInput
-                  id="weight"
-                  type="number"
-                  value={data.weight}
-                  onChange={e => setData('weight', e.target.value)}
-                  placeholder="Masukkan angka (e.g. 1, 2, 5)"
-                />
-                <p className="text-[10px] text-gray-500 mt-1">*Bobot digunakan untuk menghitung % progress project.</p>
-              </div>
+              <TextInput
+                id="weight"
+                type="number"
+                value={data.weight}
+                onChange={e => setData('weight', parseInt(e.target.value) || 0)}
+                placeholder="Masukkan angka (e.g. 1, 2, 5)"
+              />
 
               <div className="flex justify-between mt-8 border-t pt-4">
                 {mode === "Edit" && (
@@ -163,7 +183,8 @@ const TaskDrawer: React.FC<TaskDrawerProps> = ({ isOpen, onClose, type, mode, se
               )}
 
               {mode === "Edit" && selectedData && (
-                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <div>
+                  <Label>Overall Progress {selectedData.completion_progress}%</Label>
                   <div
                     className="bg-blue-600 h-2.5 rounded-full transition-all duration-700"
                     style={{ width: `${selectedData.completion_progress}%` }}
@@ -188,7 +209,7 @@ const TaskDrawer: React.FC<TaskDrawerProps> = ({ isOpen, onClose, type, mode, se
   };
 
   return (
-    <Drawer backdrop={false} open={isOpen} onClose={onClose} position="right" className="w-[900px]">
+    <Drawer backdrop={true} open={isOpen} onClose={onClose} position="right" className="w-[900px]">
       {renderContent()}
     </Drawer>
   );

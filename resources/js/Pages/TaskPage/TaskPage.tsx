@@ -1,7 +1,8 @@
 import { Button, Label, List, ListItem } from 'flowbite-react';
 import React, { useState } from 'react';
 import TaskDrawer from './Components/Drawer';
-import { FaRegCalendarAlt } from 'react-icons/fa';
+import { FaPencilAlt, FaRegCalendarAlt } from 'react-icons/fa';
+import { FaNoteSticky, FaPencil } from 'react-icons/fa6';
 
 const TaskPage: React.FC<{ projects: any[] }> = ({ projects }) => {
   const [modalConfig, setModalConfig] = useState<{
@@ -23,7 +24,6 @@ const TaskPage: React.FC<{ projects: any[] }> = ({ projects }) => {
     <>
       <div className="container mx-auto px-4 mt-8 pb-20">
         <Button color="blue" onClick={() => openDrawer("FormProjects", "Tambah")}>Add Project</Button>
-
         <div className="mt-8 space-y-6">
           {projects.map((project) => (
             <div key={project.id} className="p-5 border rounded-xl shadow-sm bg-white border-gray-200">
@@ -39,9 +39,10 @@ const TaskPage: React.FC<{ projects: any[] }> = ({ projects }) => {
                       {project.status}
                     </span>
                   </h3>
-                  <span className="text-sm text-gray-500 mt-1">
-                    <p><FaRegCalendarAlt />: {project.start_date} - {project.end_date}</p>
-                  </span>
+                  <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
+                    <FaRegCalendarAlt className="flex-shrink-0" />
+                    <span>{project.start_date} - {project.end_date}</span>
+                  </div>
                 </div>
 
                 <Button size="xs" color="light" onClick={() => openDrawer("FormTasks", "Tambah", { project_id: project.id })}>
@@ -63,7 +64,12 @@ const TaskPage: React.FC<{ projects: any[] }> = ({ projects }) => {
               </div>
 
               <div className="border-t pt-4">
-                <h4 className="text-sm font-bold text-gray-700 mb-3 uppercase tracking-wider">Tasks List</h4>
+                <h4 className="text-sm font-bold text-gray-700 mb-3 uppercase tracking-wider">
+                  <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
+                    <FaPencilAlt className="flex-shrink-0" />
+                    <span>Task List</span>
+                  </div>
+                </h4>
                 <div className="space-y-2">
                   {project.tasks && project.tasks.length > 0 ? (
                     project.tasks.map((task: any) => (
