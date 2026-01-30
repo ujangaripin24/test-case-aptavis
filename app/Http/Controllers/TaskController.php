@@ -29,19 +29,19 @@ class TaskController extends Controller
 
     public function update(Request $request, $id)
     {
-        $task = Tasks::findOrFail($id);
+        $task = Tasks::findOr($id);
 
-        if ($request->status === 'Done') {
+        if ($request->status === 'done') {
             $unfinished = $task->dependencies()->where('status', '!=', 'Done')->exists();
+
             if ($unfinished) {
-                return back()->withErrors(['status' => "Task ini punya prasyarat yang belum selesai!"]);
+                return back()->withErrors(['status' => "Gagal! Task prasyarat belum selesai (Done)."]);
             }
         }
 
         if ($request->has('dependencies')) {
             foreach ($request->dependencies as $depId) {
                 $dependencyTask = Tasks::find($depId);
-
                 if ($dependencyTask instanceof \App\Models\Tasks) {
                     if ($dependencyTask->isCircular($task->id)) {
                         return back()->withErrors(['dependencies' => "Opps! Terjadi Circular Dependency."]);
@@ -51,9 +51,9 @@ class TaskController extends Controller
             $task->dependencies()->sync($request->dependencies);
         }
 
-        $task->update($request->all());
-        $task->project->updateStatusBasedOnTasks();
+        $task->update($request->except('dependencies'));
 
+        $task->project->updateStatusBasedOnTasks();
         return redirect()->back();
     }
 
