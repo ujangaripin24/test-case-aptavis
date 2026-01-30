@@ -35,14 +35,36 @@ class Projects extends Model
     {
         $tasks = $this->tasks;
 
+        $unfinishedDep = $this->dependencies()->where('status', '!=', 'Done')->exists();
+
         if ($tasks->isEmpty() || $tasks->every('status', 'Draft')) {
             $this->status = 'Draft';
         } elseif ($tasks->every('status', 'Done')) {
-            $this->status = 'Done';
+            if ($unfinishedDep) {
+                $this->status = 'In Progress';
+            } else {
+                $this->status = 'Done';
+            }
         } else {
-            $this->status = 'In Progress';
+            if ($unfinishedDep) {
+                $this->status = 'Draft';
+            } else {
+                $this->status = 'In Progress';
+            }
         }
 
         $this->save();
+    }
+
+    public function isCircular($targetId, $visited = []): bool
+    {
+        if ($this->id == $targetId) return true;
+        if (in_array($this->id, $visited)) return false;
+        $visited[] = $this->id;
+
+        foreach ($this->dependencies as $dep) {
+            if ($dep->isCircular($targetId, $visited)) return true;
+        }
+        return false;
     }
 }
