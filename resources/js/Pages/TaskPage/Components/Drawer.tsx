@@ -70,9 +70,13 @@ const TaskDrawer: React.FC<TaskDrawerProps> = ({ isOpen, onClose, type, mode, se
     }
   };
 
-  const handleDelete = () => {
-    if (data.id && confirm('Yakin ingin menghapus project ini?')) {
-      destroy(route('project.destroy', { id: data.id }), {
+  const handleDelete = (entityType: any) => {
+    const isProject = entityType === 'project';
+    const message = isProject ? 'Yakin ingin menghapus project ini?' : 'Yakin ingin menghapus task ini?';
+    const routeName = isProject ? 'project.destroy' : 'task.destroy';
+
+    if (data.id && confirm(message)) {
+      destroy(route(routeName, data.id), {
         onSuccess: () => onClose()
       });
     }
@@ -159,12 +163,16 @@ const TaskDrawer: React.FC<TaskDrawerProps> = ({ isOpen, onClose, type, mode, se
                       <p className="text-xs text-gray-400 italic">Tidak ada task lain untuk dijadikan prasyarat.</p>
                     )}
                 </div>
-                {errors.dependencies && <p className="text-red-500 text-xs mt-1">{errors.dependencies}</p>}
+                {errors.status && (
+                  <p className="mt-1 text-sm text-red-600 font-medium">
+                    {errors.status}
+                  </p>
+                )}
               </div>
 
               <div className="flex justify-between mt-8 border-t pt-4">
                 {mode === "Edit" && (
-                  <Button color="red">Hapus</Button>
+                  <Button color="red" onClick={() => handleDelete('task')} disabled={processing}>Hapus</Button>
                 )}
                 <Button color="green" className="ml-auto" onClick={handleSubmit}>
                   Simpan Task
@@ -228,7 +236,7 @@ const TaskDrawer: React.FC<TaskDrawerProps> = ({ isOpen, onClose, type, mode, se
 
               <div className="flex justify-between mt-8 border-t pt-5">
                 {mode === "Edit" && (
-                  <Button color="red" onClick={handleDelete} disabled={processing}>Hapus</Button>
+                  <Button color="red" onClick={() => handleDelete('project')} disabled={processing}>Hapus</Button>
                 )}
                 <Button color="green" className="ml-auto px-6" onClick={handleSubmit} disabled={processing}>
                   {processing ? 'Menyimpan...' : 'Simpan'}
