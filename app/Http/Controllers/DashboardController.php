@@ -11,7 +11,7 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         return Inertia::render('TaskPage/TaskPage', [
-            'projects' => Projects::with(['tasks.dependencies', 'tasks.subtasks'])->get()
+            'projects' => Projects::with(['dependencies', 'tasks.dependencies', 'tasks.subtasks'])->get()
         ]);
     }
 }
