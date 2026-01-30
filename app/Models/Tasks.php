@@ -16,14 +16,15 @@ class Tasks extends Model
         return $this->belongsTo(Projects::class, 'project_id');
     }
 
-    public function subtasks(): HasMany
-    {
-        return $this->hasMany(Tasks::class, 'parent_id')->with('subtasks');
-    }
 
     public function dependencies(): BelongsToMany
     {
         return $this->belongsToMany(Tasks::class, 'task_dependencies', 'task_id', 'depends_on_id');
+    }
+
+    public function subtasks(): HasMany
+    {
+        return $this->hasMany(Tasks::class, 'parent_id')->with('subtasks');
     }
 
     public function isCircular($targetId, $visited = []): bool
