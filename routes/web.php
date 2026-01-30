@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\TaskController;
@@ -7,7 +8,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', [TaskController::class, 'index'])->name('task');
+Route::get('/', [DashboardController::class, 'index'])->name('project.index');
 Route::post('/projects', [ProjectController::class, 'store'])->name('project.store');
 Route::put('/projects/{id}', [ProjectController::class, 'update'])->name('project.update');
 Route::delete('/projects/{id}', [ProjectController::class, 'destroy'])->name('project.destroy');
